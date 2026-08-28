@@ -1,0 +1,24 @@
+{
+  "date": "2026-08-28",
+  "tz": "America/New_York",
+  "slots": [
+    {
+      "atUtc": "2026-08-29T00:02:00.000Z",
+      "label": "8:02 PM EDT",
+      "posted": false,
+      "url": null
+    },
+    {
+      "atUtc": "2026-08-29T01:07:00.000Z",
+      "label": "9:07 PM EDT",
+      "posted": false,
+      "url": null
+    },
+    {
+      "atUtc": "2026-08-29T01:56:00.000Z",
+      "label": "9:56 PM EDT",
+      "posted": false,
+      "url": null
+    }
+  ]
+}
