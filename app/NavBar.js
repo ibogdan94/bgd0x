@@ -13,6 +13,8 @@ export default function NavBar() {
     ? "/sources"
     : pathname.startsWith("/comments")
     ? "/comments"
+    : pathname.startsWith("/media")
+    ? "/media"
     : "/";
 
   async function logout() {
@@ -37,6 +39,7 @@ export default function NavBar() {
           <Tab label="Sources" value="/sources" href="/sources" component="a" />
           <Tab label="Queue" value="/drafts" href="/drafts" component="a" />
           <Tab label="Comments" value="/comments" href="/comments" component="a" />
+          <Tab label="Media" value="/media" href="/media" component="a" />
         </Tabs>
         <Tooltip title="Log out">
           <IconButton onClick={logout} color="inherit" edge="end">
