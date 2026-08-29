@@ -12,6 +12,7 @@ import NavBar from "../NavBar";
 
 export default function Media() {
   const [media, setMedia] = useState(null);
+  const [mascots, setMascots] = useState([]);
   const [label, setLabel] = useState("");
   const [prompt, setPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
@@ -26,6 +27,9 @@ export default function Media() {
     setMedia(data.media || []);
   }
   useEffect(() => { load(); }, []);
+  useEffect(() => {
+    fetch("/api/media/mascots").then((r) => r.json()).then((d) => setMascots(d.mascots || [])).catch(() => {});
+  }, []);
 
   // Surface the X re-auth result (redirected back with ?xauth=ok|noscope).
   useEffect(() => {
@@ -182,6 +186,32 @@ export default function Media() {
             </Typography>
           </CardContent>
         </Card>
+
+        {/* Character gallery — the mascot reference art */}
+        {mascots.length > 0 && (
+          <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", mb: 3 }}>
+            <CardContent>
+              <Typography variant="subtitle2" sx={{ mb: 0.5 }}>Character gallery</Typography>
+              <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
+                The bgd0x mascot reference art (also used as the video reference). Click to view, or download to use anywhere.
+              </Typography>
+              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "repeat(3, 1fr)", sm: "repeat(5, 1fr)" }, gap: 1.5 }}>
+                {mascots.map((m) => (
+                  <Box key={m.name} sx={{ textAlign: "center" }}>
+                    <Box
+                      component="a" href={m.src} target="_blank" rel="noreferrer"
+                      sx={{ display: "block", borderRadius: 2, overflow: "hidden", border: "1px solid", borderColor: "divider", aspectRatio: "1 / 1", bgcolor: "action.hover" }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={m.src} alt={m.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </Box>
+                    <Button size="small" href={m.download} sx={{ mt: 0.5, minWidth: 0, px: 1 }}>Download</Button>
+                  </Box>
+                ))}
+              </Box>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Upload your own image */}
         <Card elevation={0} sx={{ border: "1px dashed", borderColor: "divider", mb: 4 }}>
