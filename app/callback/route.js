@@ -26,7 +26,10 @@ export async function GET(request) {
     });
     await setTokens({ AccessToken: accessToken, RefreshToken: refreshToken });
     const ok = (scope || []).includes("media.write");
-    const res = NextResponse.redirect(new URL(`/media?xauth=${ok ? "ok" : "noscope"}`, request.url));
+    // Redirect to the PUBLIC origin, not request.url — behind Amplify's proxy the
+    // Lambda sees an internal http://localhost:3000 request URL.
+    const origin = new URL(process.env.X_CALLBACK_URL || "https://bgd0x.com/callback").origin;
+    const res = NextResponse.redirect(`${origin}/media?xauth=${ok ? "ok" : "noscope"}`);
     res.cookies.set("x_oauth", "", { path: "/", maxAge: 0 });
     return res;
   } catch (err) {
