@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   Container, Box, Card, CardContent, CardActions, Button, Typography, Chip,
-  Snackbar, Alert, Link as MuiLink, Stack, CircularProgress, TextField, Divider,
+  Snackbar, Alert, Link as MuiLink, Stack, CircularProgress,
 } from "@mui/material";
 import NavBar from "../NavBar";
 
@@ -11,7 +11,6 @@ export default function Comments() {
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(null);
   const [toast, setToast] = useState(null);
-  const [newHandle, setNewHandle] = useState("");
 
   async function load() {
     const res = await fetch("/api/comments", { cache: "no-store" });
@@ -34,18 +33,6 @@ export default function Comments() {
     finally { setBusy(null); }
   }
 
-  async function target(payload) {
-    try {
-      const res = await fetch("/api/comments", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error((await res.json()).error);
-      setNewHandle("");
-      await load();
-    } catch (e) { setToast({ ok: false, msg: e.message }); }
-  }
-
   const planned = (data?.comments || []).filter((c) => c.status === "planned");
   const posted = (data?.comments || []).filter((c) => c.status === "posted");
 
@@ -53,40 +40,28 @@ export default function Comments() {
     <>
       <NavBar />
       <Container maxWidth="sm" sx={{ py: { xs: 3, sm: 5 } }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 2 }}>
-          <Typography variant="h5">Comments</Typography>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 1 }}>
+          <Typography variant="h5">Replies</Typography>
           {data && (
             <Typography variant="body2" color="text.secondary">
               {data.postedToday}/{data.cap} posted today (auto)
             </Typography>
           )}
         </Box>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          Auto-replies to people who <b>mention @bgd0x</b> or reply in your threads — the only
+          replies X allows on your API tier. Spam and scam bots are filtered out automatically.
+        </Typography>
 
         {!data && <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}><CircularProgress /></Box>}
 
         {data && (
           <>
-            {/* Watchlist */}
-            <Typography variant="overline" color="text.secondary">Watching these profiles</Typography>
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1, mb: 1.5 }}>
-              {data.targets.map((t) => (
-                <Chip key={t.id} label={`@${t.handle}`} onDelete={() => target({ removeTarget: t.id })} size="small" variant="outlined" />
-              ))}
-            </Box>
-            <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
-              <TextField size="small" placeholder="add @handle" value={newHandle}
-                onChange={(e) => setNewHandle(e.target.value)} sx={{ flexGrow: 1 }} />
-              <Button variant="outlined" disabled={!newHandle.trim()}
-                onClick={() => target({ addTarget: { handle: newHandle } })}>Add</Button>
-            </Box>
-
-            <Divider sx={{ mb: 2 }} />
-
             {/* Planned queue */}
             <Typography variant="overline" color="text.secondary">Planned ({planned.length})</Typography>
             {planned.length === 0 && (
               <Alert severity="info" variant="outlined" sx={{ mt: 1, mb: 2 }}>
-                No planned comments yet — the reactor drafts them from the watchlist on its schedule.
+                No planned replies yet — the reactor drafts them from genuine mentions on its schedule.
               </Alert>
             )}
             <Stack spacing={2} sx={{ mt: 1, mb: 3 }}>

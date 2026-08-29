@@ -38,7 +38,7 @@ export default function NavBar() {
           <Tab label="Compose" value="/" href="/" component="a" />
           <Tab label="Sources" value="/sources" href="/sources" component="a" />
           <Tab label="Queue" value="/drafts" href="/drafts" component="a" />
-          <Tab label="Comments" value="/comments" href="/comments" component="a" />
+          <Tab label="Replies" value="/comments" href="/comments" component="a" />
           <Tab label="Media" value="/media" href="/media" component="a" />
         </Tabs>
         <Tooltip title="Log out">
