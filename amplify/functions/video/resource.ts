@@ -1,12 +1,13 @@
 import { defineFunction, secret } from "@aws-amplify/backend";
 
-// Video autoposter: animates the oldest unused uploaded image into a short hype
-// clip (BFL FLUX 3 i2v) and posts it to X. Gated to the posting window + a daily
-// cap in code. Runs every 4 hours; renders can take minutes (long timeout).
+// Weekly video autoposter: posts one mascot clip to X. If a clip is queued in
+// the Media tab it posts that (reusing its render); otherwise it auto-generates
+// a fresh on-brand mascot clip (BFL FLUX 3 i2v) and posts it. Runs weekly on
+// Mondays at 15:00 UTC (11am America/New_York). Renders can take minutes.
 export const video = defineFunction({
   name: "video",
   entry: "./handler.ts",
-  schedule: "0 */4 * * ? *",
+  schedule: "0 15 ? * MON *",
   timeoutSeconds: 600,
   environment: {
     BFL: secret("BFL"),
@@ -17,6 +18,6 @@ export const video = defineFunction({
     POST_TZ: "America/New_York",
     WINDOW_START: "8",
     WINDOW_END: "22",
-    VIDEO_DAILY_MAX: "2",
+    VIDEO_MIN_GAP_DAYS: "5",
   },
 });

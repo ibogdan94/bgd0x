@@ -13,6 +13,8 @@ import NavBar from "../NavBar";
 export default function Media() {
   const [media, setMedia] = useState(null);
   const [label, setLabel] = useState("");
+  const [prompt, setPrompt] = useState("");
+  const [generating, setGenerating] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState(null);
   const [toast, setToast] = useState(null);
@@ -79,6 +81,47 @@ export default function Media() {
     }
   }
 
+  // Text -> mascot video. The bgd0x mascot art is always the visual reference.
+  async function generate() {
+    setGenerating(true);
+    try {
+      const res = await fetch("/api/media/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: prompt }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed");
+      setPrompt("");
+      await load();
+      setToast({ ok: true, msg: "Mascot clip generated ✓" });
+    } catch (err) {
+      setToast({ ok: false, msg: err.message });
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  // Queue / unqueue a clip for the weekly post.
+  async function toggleQueue(id, queued) {
+    setBusy(id);
+    try {
+      const res = await fetch(`/api/media/${id}/queue`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ queued }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed");
+      await load();
+      setToast({ ok: true, msg: queued ? "Queued for the weekly post ✓" : "Removed from weekly queue" });
+    } catch (err) {
+      setToast({ ok: false, msg: err.message });
+    } finally {
+      setBusy(null);
+    }
+  }
+
   async function remove(id) {
     setBusy(id);
     try {
@@ -95,11 +138,38 @@ export default function Media() {
       <Container maxWidth="md" sx={{ py: { xs: 3, sm: 5 } }}>
         <Typography variant="h5" sx={{ mb: 1 }}>Media</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Upload your images. The scheduler animates the oldest unused one into a hype short
-          video (FLUX 3) and auto-posts it to X. You can also animate + post one now.
+          Describe a scene and the bgd0x mascot animates it (FLUX 3 i2v) — the mascot art is always
+          the reference, so every clip is on-brand. Queue a clip for the weekly X post, or let the
+          weekly job auto-generate one. You can also upload your own image to animate.
         </Typography>
 
-        {/* Upload */}
+        {/* Generate from text (mascot always the reference) */}
+        <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", mb: 3 }}>
+          <CardContent>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>Generate a mascot clip</Typography>
+            <TextField
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Describe the scene, e.g. 'bull shrugs off a red candle and keeps stacking'"
+              fullWidth size="small" multiline minRows={2} sx={{ mb: 2 }}
+              disabled={generating}
+            />
+            <Button
+              variant="contained" startIcon={<MovieCreationIcon />}
+              disabled={generating}
+              onClick={generate}
+              sx={{ borderRadius: 9999, px: 3 }}
+            >
+              {generating ? "Generating…" : "Generate mascot clip"}
+            </Button>
+            {generating && <LinearProgress sx={{ mt: 2, borderRadius: 2 }} />}
+            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+              ~$0.85 per 5s clip · nothing is posted until you queue it (or the weekly job runs)
+            </Typography>
+          </CardContent>
+        </Card>
+
+        {/* Upload your own image */}
         <Card elevation={0} sx={{ border: "1px dashed", borderColor: "divider", mb: 4 }}>
           <CardContent>
             <TextField
@@ -114,12 +184,12 @@ export default function Media() {
               onChange={(e) => upload(Array.from(e.target.files || []))}
             />
             <Button
-              variant="contained" startIcon={<UploadIcon />}
+              variant="outlined" startIcon={<UploadIcon />}
               disabled={uploading}
               onClick={() => fileRef.current?.click()}
               sx={{ borderRadius: 9999, px: 3 }}
             >
-              {uploading ? "Uploading…" : "Upload images"}
+              {uploading ? "Uploading…" : "Upload image"}
             </Button>
             {uploading && <LinearProgress sx={{ mt: 2, borderRadius: 2 }} />}
           </CardContent>
@@ -152,9 +222,9 @@ export default function Media() {
                   />
                 )}
                 <Chip
-                  label={m.status === "used" ? "posted" : m.status === "preview" ? "preview" : "pending"}
+                  label={m.status === "used" ? "posted" : m.status === "queued" ? "queued" : m.status === "preview" ? "preview" : "pending"}
                   size="small"
-                  color={m.status === "used" ? "default" : m.status === "preview" ? "warning" : "success"}
+                  color={m.status === "used" ? "default" : m.status === "queued" ? "primary" : m.status === "preview" ? "warning" : "success"}
                   sx={{ position: "absolute", top: 8, left: 8 }}
                 />
               </Box>
@@ -176,15 +246,29 @@ export default function Media() {
                 >
                   {busy === m.id ? "Rendering…" : m.videoKey ? "Re-render" : "Preview"}
                 </Button>
-                <Button
-                  size="small" variant="contained"
-                  startIcon={busy === m.id ? null : <MovieCreationIcon />}
-                  disabled={busy === m.id || m.status === "used"}
-                  onClick={() => postNow(m.id)}
-                  sx={{ borderRadius: 9999, flexGrow: 1 }}
-                >
-                  {busy === m.id ? "Rendering…" : "Animate & post"}
-                </Button>
+                {m.videoKey && m.status !== "used" && (
+                  <Button
+                    size="small"
+                    variant={m.status === "queued" ? "contained" : "outlined"}
+                    color="primary"
+                    disabled={busy === m.id}
+                    onClick={() => toggleQueue(m.id, m.status !== "queued")}
+                    sx={{ borderRadius: 9999, flexGrow: 1 }}
+                  >
+                    {m.status === "queued" ? "Queued ✓" : "Queue for weekly"}
+                  </Button>
+                )}
+                <Tooltip title="Render + post to X right now (bypasses the weekly schedule)">
+                  <span>
+                    <IconButton
+                      size="small" color="default"
+                      disabled={busy === m.id || m.status === "used"}
+                      onClick={() => postNow(m.id)}
+                    >
+                      <MovieCreationIcon fontSize="small" />
+                    </IconButton>
+                  </span>
+                </Tooltip>
                 <Tooltip title="Delete">
                   <span>
                     <IconButton size="small" color="error" disabled={busy === m.id} onClick={() => remove(m.id)}>
