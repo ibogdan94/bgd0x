@@ -3,12 +3,11 @@ import { Table, AttributeType, BillingMode } from "aws-cdk-lib/aws-dynamodb";
 import { scheduler } from "./functions/scheduler/resource";
 import { news } from "./functions/news/resource";
 import { generate } from "./functions/generate/resource";
-import { comments } from "./functions/comments/resource";
 import { cleanup } from "./functions/cleanup/resource";
 import { video } from "./functions/video/resource";
 import { storage } from "./storage/resource";
 
-const backend = defineBackend({ scheduler, news, generate, comments, cleanup, video, storage });
+const backend = defineBackend({ scheduler, news, generate, cleanup, video, storage });
 
 // Single-table state store (drafts, queue, schedule, tokens, seen, posted log).
 const stack = backend.createStack("bgd0x-state");
@@ -21,7 +20,7 @@ const table = new Table(stack, "State", {
 });
 
 // Grant each scheduled function access + tell it the table name.
-for (const fn of [backend.scheduler, backend.news, backend.generate, backend.comments, backend.cleanup, backend.video]) {
+for (const fn of [backend.scheduler, backend.news, backend.generate, backend.cleanup, backend.video]) {
   table.grantReadWriteData(fn.resources.lambda);
   fn.addEnvironment("STATE_TABLE", table.tableName);
 }
