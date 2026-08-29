@@ -4,10 +4,11 @@ import { defineFunction, secret } from "@aws-amplify/backend";
 // the Media tab it posts that (reusing its render); otherwise it auto-generates
 // a fresh on-brand mascot clip (BFL FLUX 3 i2v) and posts it. Runs weekly on
 // Mondays at 15:00 UTC (11am America/New_York). Renders can take minutes.
+// Cron day-of-week is numeric per Amplify: Sun=1 … Mon=2 … Sat=7.
 export const video = defineFunction({
   name: "video",
   entry: "./handler.ts",
-  schedule: "0 15 ? * MON *",
+  schedule: "0 15 ? * 2 *",
   timeoutSeconds: 600,
   environment: {
     BFL: secret("BFL"),
