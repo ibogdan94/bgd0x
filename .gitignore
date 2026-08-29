@@ -3,3 +3,15 @@ node_modules
 .env
 .env*.local
 .idea
+.amplify
+amplify_outputs*
+.npm
+
+# local state (files backend)
+queue.txt
+drafts.json
+state.json
+posted.log
+news-seen.json
+sources.json
+cookies.txt
