@@ -27,6 +27,14 @@ export default function Media() {
   }
   useEffect(() => { load(); }, []);
 
+  // Surface the X re-auth result (redirected back with ?xauth=ok|noscope).
+  useEffect(() => {
+    const x = new URLSearchParams(window.location.search).get("xauth");
+    if (x === "ok") setToast({ ok: true, msg: "X reconnected — video posting enabled ✓" });
+    else if (x === "noscope") setToast({ ok: false, msg: "Reconnected, but media.write wasn't granted — re-approve all scopes." });
+    if (x) window.history.replaceState({}, "", "/media");
+  }, []);
+
   async function upload(files) {
     if (!files || !files.length) return;
     setUploading(true);
@@ -136,11 +144,17 @@ export default function Media() {
     <>
       <NavBar />
       <Container maxWidth="md" sx={{ py: { xs: 3, sm: 5 } }}>
-        <Typography variant="h5" sx={{ mb: 1 }}>Media</Typography>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+          <Typography variant="h5">Media</Typography>
+          <Button size="small" variant="text" href="/api/auth/x/start" sx={{ borderRadius: 9999 }}>
+            Reconnect X
+          </Button>
+        </Stack>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
           Describe a scene and the bgd0x mascot animates it (FLUX 3 i2v) — the mascot art is always
           the reference, so every clip is on-brand. Queue a clip for the weekly X post, or let the
-          weekly job auto-generate one. You can also upload your own image to animate.
+          weekly job auto-generate one. You can also upload your own image to animate. (First video
+          post? Click <b>Reconnect X</b> once to grant media-posting permission.)
         </Typography>
 
         {/* Generate from text (mascot always the reference) */}
