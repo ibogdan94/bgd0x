@@ -25,8 +25,12 @@ for (const fn of [backend.scheduler, backend.news, backend.generate, backend.cle
   fn.addEnvironment("STATE_TABLE", table.tableName);
 }
 
-// The video function reads uploaded images from the media S3 bucket.
+// The video function reads uploaded images from the media S3 bucket. Grant it
+// here (function -> bucket) rather than via a storage `access` rule, so the
+// dependency is one-directional and CloudFormation doesn't see a cycle.
 const mediaBucket = backend.storage.resources.bucket;
+mediaBucket.grantReadWrite(backend.video.resources.lambda, "media/*");
+mediaBucket.grantDelete(backend.video.resources.lambda, "media/*");
 backend.video.addEnvironment("MEDIA_BUCKET", mediaBucket.bucketName);
 
 // Surfaced so the Next.js hosting compute can be pointed at the same table + bucket.

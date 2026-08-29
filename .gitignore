@@ -15,6 +15,6 @@ posted.log
 news-seen.json
 sources.json
 media.json
-media/
+/media/
 cookies.txt
 .env.production
