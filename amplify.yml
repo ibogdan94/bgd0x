@@ -6,6 +6,9 @@ frontend:
         - npm install --no-audit --no-fund
     build:
       commands:
+        # Expose server env vars to the Next.js SSR runtime (Amplify console vars
+        # are build-time only; writing them to .env.production makes them runtime).
+        - env | grep -E '^(ClientId|ClientSecret|STATE_TABLE|POST_TZ|WINDOW_START|WINDOW_END|EXCHANGE|REF_LINK|ANTHROPIC_API_KEY|AI_MODEL|DASH_EMAIL|DASH_PASSWORD|AUTH_SECRET|BFL|VIDEO_DAILY_MAX|MEDIA_BUCKET)=' >> .env.production || true
         - npm run build
   artifacts:
     baseDirectory: .next
