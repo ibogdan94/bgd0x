@@ -18,3 +18,4 @@ media.json
 /media/
 cookies.txt
 .env.production
+topics.json
