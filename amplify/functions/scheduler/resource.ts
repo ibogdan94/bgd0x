@@ -16,5 +16,11 @@ export const scheduler = defineFunction({
     POST_TZ: "America/New_York",
     WINDOW_START: "8",
     WINDOW_END: "22",
+    // Daily mix, randomized within each band: 2-3 reactions to the live news
+    // cycle plus 2-3 evergreen originals, interleaved through the window.
+    NEWS_PER_DAY_MIN: "2",
+    NEWS_PER_DAY_MAX: "3",
+    ORIGINAL_PER_DAY_MIN: "2",
+    ORIGINAL_PER_DAY_MAX: "3",
   },
 });
