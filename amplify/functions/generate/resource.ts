@@ -8,6 +8,6 @@ export const generate = defineFunction({
   timeoutSeconds: 120,
   environment: {
     ANTHROPIC_API_KEY: secret("ANTHROPIC_API_KEY"),
-    AI_MODEL: "claude-opus-4-8",
+    AI_MODEL: "claude-opus-5",
   },
 });

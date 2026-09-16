@@ -15,7 +15,7 @@ export const video = defineFunction({
     ClientId: secret("ClientId"),
     ClientSecret: secret("ClientSecret"),
     ANTHROPIC_API_KEY: secret("ANTHROPIC_API_KEY"),
-    AI_MODEL: "claude-opus-4-8",
+    AI_MODEL: "claude-opus-5",
     POST_TZ: "America/New_York",
     WINDOW_START: "8",
     WINDOW_END: "22",

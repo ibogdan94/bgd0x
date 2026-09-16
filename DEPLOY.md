@@ -45,7 +45,7 @@ aws dynamodb put-item --table-name bgd0x-state --item '{
    STATE_TABLE=bgd0x-state
    AWS_REGION=us-east-1
    ClientId=...          ClientSecret=...
-   ANTHROPIC_API_KEY=...  AI_MODEL=claude-opus-4-8
+   ANTHROPIC_API_KEY=...  AI_MODEL=claude-opus-5
    DASH_EMAIL=bgd0x777@gmail.com  DASH_PASSWORD=...  AUTH_SECRET=...
    EXCHANGE=WhiteBIT
    REF_LINK=https://whitebit.com/referral/a674ee49-bfd5-4e01-a1b9-886890453979
